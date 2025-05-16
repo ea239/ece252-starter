@@ -12,6 +12,10 @@
  * INCLUDE HEADER FILES
  *****************************************************************************/
 #include <stdio.h>
+#include <stdlib.h>
+#include <arpa/inet.h>
+#include <string.h>  
+#include <stdint.h>  
 
 /******************************************************************************
  * DEFINED MACROS 
@@ -79,7 +83,6 @@ chunk_p get_chunk(FILE *fp); //extract from file one chunk and populate a struct
 
 U32 get_chunk_crc(chunk_p in); //read out expected crc from a struct chunk
 U32 calculate_chunk_crc(chunk_p in); //calculate crc using chunk type and chunk data
-
 simple_PNG_p mallocPNG(); //allocate memory for a struct simple_PNG
 void free_png( simple_PNG_p in); //free the memory of a struct simple_PNG
 void free_chunk(chunk_p in); //free the memory of a struct chunk and inner data buffers
@@ -92,3 +95,4 @@ int write_chunk(FILE* fp, chunk_p in); //write a struct chunk to file
 
 
 //helper function
+void free_simple_png(simple_PNG_p img);
