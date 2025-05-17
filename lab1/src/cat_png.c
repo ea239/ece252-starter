@@ -9,6 +9,6 @@
 int main (int argc, char **argv) {
     const char** input_paths = (const char**)&argv[1];
     int file_count = argc - 1;
-    cat_png(input_paths, file_count, "out.png");
+    cat_png(input_paths, file_count, "all.png");
     return 0;
 }

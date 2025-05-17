@@ -43,4 +43,4 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
 
 
 clean:
-	rm -rf $(OBJ_DIR) findpng catpng out.png
+	rm -rf $(OBJ_DIR) findpng catpng all.png
