@@ -5,7 +5,7 @@ static int result_index = 0;
 
 int end_with_png(const char *filename) {
     const char *exd = strrchr(filename, '.');
-    return exd && strcmp(exd, ".png") == 0;
+    return exd && strcasecmp(exd, ".png") == 0;
 }
 
 int check_png(const char *path) {
@@ -99,11 +99,6 @@ simple_PNG_p* load_png(const char** paths, int count) {
 U8* extract_scanlines(simple_PNG_p img, data_IHDR_p ihdr, uLongf* out_len) {
     if (!img || !img->p_IDAT || !ihdr) {
         fprintf(stderr, "Invalid input to extract_scanlines\n");
-        return NULL;
-    }
-
-    if (ihdr->bit_depth != 8 || ihdr->color_type != 6) {
-        fprintf(stderr, "Unsupported format: only 8-bit RGBA is supported.\n");
         return NULL;
     }
 
