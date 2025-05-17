@@ -71,7 +71,7 @@ typedef struct simple_PNG {
 
 int is_png(U8 *buf, size_t n); //check if PNG signature is present
     //takes in pointer to least 8 bytes of binary data
-int get_png_data_IHDR(struct data_IHDR *out, FILE *fp, long offset, int whence); //extract from file the data field of the IHDR chunk, to populate a struct data_IHDR
+int get_png_data_IHDR(struct data_IHDR *out, struct chunk *ihdr); //extract from file the data field of the IHDR chunk, to populate a struct data_IHDR
     //takes in file pointer and how to reach data field of the IDHR chunk (see fseek parameters)
 int get_png_height(struct data_IHDR *buf); //read out image height from a struct data_IHDR
 int get_png_width(struct data_IHDR *buf); //read out image width from a struct data_IHDR
@@ -83,9 +83,6 @@ chunk_p get_chunk(FILE *fp); //extract from file one chunk and populate a struct
 
 U32 get_chunk_crc(chunk_p in); //read out expected crc from a struct chunk
 U32 calculate_chunk_crc(chunk_p in); //calculate crc using chunk type and chunk data
-simple_PNG_p mallocPNG(); //allocate memory for a struct simple_PNG
-void free_png( simple_PNG_p in); //free the memory of a struct simple_PNG
-void free_chunk(chunk_p in); //free the memory of a struct chunk and inner data buffers
 
 int write_PNG(char* filepath, simple_PNG_p in); //write a struct simple_PNG to file
 int write_chunk(FILE* fp, chunk_p in); //write a struct chunk to file
@@ -94,5 +91,4 @@ int write_chunk(FILE* fp, chunk_p in); //write a struct chunk to file
 /* you're free to design and declare your own functions prototypes here*/
 
 
-//helper function
 void free_simple_png(simple_PNG_p img);

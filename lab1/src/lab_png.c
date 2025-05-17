@@ -15,24 +15,24 @@ int is_png(U8 *buf, size_t n) {
     return 1;
 }
 
-int get_png_data_IHDR(struct data_IHDR *out, FILE *fp, long offset, int whence) {
-    if(fseek(fp, offset + 8, whence) != 0) {
+int get_png_data_IHDR(struct data_IHDR *out, struct chunk *ihdr) {
+    if (!out || !ihdr || ihdr->length != 13 || !ihdr->p_data) {
+        fprintf(stderr, "Error: invalid IHDR chunk\n");
         return 0;
     }
+    U8* p = ihdr->p_data;
+    memcpy(&out->width,  p + 0, 4);
+    memcpy(&out->height, p + 4, 4);
+    out->width = ntohl(out->width);
+    out->height = ntohl(out->height);
+    
+    out->bit_depth   = p[8];
+    out->color_type  = p[9];
+    out->compression = p[10];
+    out->filter      = p[11];
+    out->interlace   = p[12];
 
-    int ok = 1;
-    U32 buf;
-    ok &= fread(&buf, 1, 4, fp) == 4;
-    out->height = ntohl(buf);
-    ok &= fread(&buf, 1, 4, fp) == 4;
-    out->width = ntohl(buf);
-    ok &= fread(&out->bit_depth, 1, 1, fp) == 1;
-    ok &= fread(&out->color_type, 1, 1, fp) == 1;
-    ok &= fread(&out->compression, 1, 1, fp) == 1;
-    ok &= fread(&out->filter, 1, 1, fp) == 1;
-    ok &= fread(&out->interlace, 1, 1, fp) == 1;
-
-    return ok;
+    return 1;
 }
 
 int get_png_height(struct data_IHDR *buf) {
@@ -143,3 +143,46 @@ void free_simple_png(simple_PNG_p img) {
 }
 
 
+int write_chunk(FILE* fp, chunk_p in) {
+    U32 len_net = htonl(in->length);
+    fwrite(&len_net, 1, 4, fp);
+
+    fwrite(in->type, 1, 4, fp);
+
+    if (in->length > 0 && in->p_data) {
+        fwrite(in->p_data, 1, in->length, fp);
+    }
+
+    U32 crc_net = htonl(in->crc);
+    fwrite(&crc_net, 1, 4, fp);
+
+    return 1;
+}
+
+int write_PNG(char* filepath, simple_PNG_p in) {
+    if (!filepath || !in || !in->p_IHDR || !in->p_IDAT || !in->p_IEND) {
+        fprintf(stderr, "Invalid PNG structure\n");
+        return 0;
+    }
+
+    FILE* fp = fopen(filepath, "wb");
+    if (!fp) {
+        perror("fopen");
+        return 0;
+    }
+
+    const U8 png_header[8] = {0x89,'P','N','G',0x0D,0x0A,0x1A,0x0A};
+    fwrite(png_header, 1, 8, fp); 
+
+    if (!write_chunk(fp, in->p_IHDR)) goto fail;
+    if (!write_chunk(fp, in->p_IDAT)) goto fail;
+    if (!write_chunk(fp, in->p_IEND)) goto fail;
+
+    fclose(fp);
+    return 1;
+
+fail:
+    fprintf(stderr, "Error writing PNG chunks to %s\n", filepath);
+    fclose(fp);
+    return 0;
+}
