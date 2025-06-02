@@ -129,8 +129,17 @@ int main(int argc, char** argv) {
             n = atoi(argv[2]);
         }
     } else if (argc == 5) {
-        t = atoi(argv[2]);
-        n = atoi(argv[4]);
+        if(strcmp(argv[1], "-t") == 0) {
+            t = atoi(argv[2]);
+            n = atoi(argv[4]);
+        }else if(strcmp(argv[1], "-n") == 0) {
+            n = atoi(argv[2]);
+            t = atoi(argv[4]);
+        }
+    }
+    if (n > 3 || n < 1) {                                
+        fprintf(stderr, "Error: -n must be 1 to 3\n");
+        return 1;
     }
 
     pthread_t threads[t];
